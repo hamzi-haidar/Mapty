@@ -100,10 +100,33 @@ a:visited {
   height: 1rem;
   font-size: 2rem;
   background-color: rgba(255, 0, 0, 0);
-  color: var(--color-light--1);
+  color: var(--color-wh--1);
   border: none;
   border-radius: 50%;
   cursor: pointer;
+}
+
+.workout-btns {
+  display: flex;
+  justify-content: space-between;
+  grid-column: 1 /-1;
+}
+
+.btn--edit {
+  width: 4rem;
+  height: 2rem;
+  font-size: 1.5rem;
+  color: black;
+  border: none;
+  border-radius: 10%;
+  cursor: pointer;
+}
+
+.edit-running {
+  background-color: var(--color-brand--2);
+}
+.edit-cycling {
+  background-color: var(--color-brand--1);
 }
 
 .workout__details {
@@ -150,6 +173,34 @@ a:visited {
   padding: 0 2.25rem;
   margin-bottom: 0;
   opacity: 0;
+}
+
+.edit-form {
+  background-color: var(--color-dark--2);
+  border-radius: 5px;
+  padding: 1.5rem 2.75rem;
+  margin-bottom: 1.75rem;
+
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem 2.5rem;
+
+  /* Match height and activity boxes */
+  width: 47rem;
+  height: 14rem;
+  transition: all 0.5s, transform 1ms;
+  overflow: hidden;
+  display: none;
+}
+
+.edit-form_heading {
+  grid-column: 1 / -1;
+  font-size: 1.5rem;
+  text-align: center;
+  color: white;
+  letter-spacing: 3px;
+  font-weight: 700;
+  margin-bottom: 1.2rem;
 }
 
 .form__row {

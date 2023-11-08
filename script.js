@@ -90,6 +90,17 @@ class App {
     containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
     cancelBtn.addEventListener('click', this._hideForm.bind(this));
     containerWorkouts.addEventListener('click', this._deleteWorkout.bind(this));
+    containerWorkouts.addEventListener(
+      'click',
+      this._openEditWorkout.bind(this)
+    );
+    containerWorkouts.addEventListener(
+      'submit',
+      this._submitEditForm.bind(this)
+    );
+
+    containerWorkouts.addEventListener('change', this._toggleEdit);
+
     // this.#deleteBtn.forEach(btn =>
     //   btn.addEventListener('click', this._deleteWorkout.bind(this))
     // );
@@ -152,6 +163,7 @@ class App {
 
   _NewWorkout(e) {
     e.preventDefault();
+
     const validInputs = (...inputs) =>
       inputs.every(inp => Number.isFinite(inp));
     const allPositive = (...inputs) => inputs.every(inp => inp > 0);
@@ -191,6 +203,7 @@ class App {
 
       workout = new Cycling([lat, lng], distance, duration, elevation);
     }
+
     // add new object to workout array
     this.#workouts.push(workout);
     // console.log(workout);
@@ -234,21 +247,82 @@ class App {
   }
 
   _renderWorkout(workout) {
-    let html = `
+    let html = `   
+  
+     <form class="edit-form" data-id = "${workout.id}">
+    <div class="edit-form_heading">edit workout</div>
+    <div class="form__row">
+      <label class="form__label">Type</label>
+      <select class="form__input form__input--type" data-id = "${workout.id}">
+    ${
+      workout.type === 'running'
+        ? `<option value="running">Running</option>
+      <option value="cycling">Cycling</option>`
+        : `<option value="cycling">Cycling</option>
+      <option value="running">Running</option>`
+    }
+     
+     
+      }
+      </select>
+    </div>
+    <div class="form__row">
+      <label class="form__label">Distance</label>
+      <input class="form__input form__input--distance" placeholder="${
+        workout.distance
+      } km" />
+    </div>
+    <div class="form__row">
+      <label class="form__label">Duration</label>
+      <input
+        class="form__input form__input--duration"
+        placeholder="${workout.duration} min"
+      />
+    </div>
+    <div class="form__row ${
+      workout.type === 'running' ? '' : 'form__row--hidden'
+    }">
+
+
+      <label class="form__label">Cadence</label>
+      <input
+        class="form__input form__input--cadence"
+        placeholder="${workout.cadence} step/min"
+      />
+    </div>
+    <div class="form__row ${
+      workout.type === 'cycling' ? '' : 'form__row--hidden'
+    }">
+      <label class="form__label">Elev Gain</label>
+      <input
+        class="form__input form__input--elevation"
+        placeholder="${workout.elevationGain} meters"
+      />
+    </div>
+    <div class="btn_container">
+      <button class="form__btn btn--submit">OK</button>
+      <button class="form__btn btn--cancel">cancel</button>
+    </div>
+  </form>
+ 
    <li class="workout workout--${workout.type}" data-id="${workout.id}">
+      <div class="workout-btns"> <button class="btn--edit  edit-${
+        workout.type === 'running' ? 'running' : 'cycling'
+      }">edit</button>
+    <button class="btn--delete">×</button></div>
     <div class = "workout-heading"><h2 class="workout__title">${
       workout.description
-    } </h2> <button class="btn--delete">×</button> </div>
+    } </h2>  </div>
     <div class="workout__details">
       <span class="workout__icon">${
         workout.type === 'running' ? '🏃' : '🚴'
       }</span>
-      <span class="workout__value">${workout.distance}</span>
+      <span class="workout-distance workout__value">${workout.distance}</span>
       <span class="workout__unit">km</span>
     </div>
     <div class="workout__details">
       <span class="workout__icon">⏱</span>
-      <span class="workout__value">${workout.duration}</span>
+      <span class="workout-duration workout__value">${workout.duration}</span>
       <span class="workout__unit">min</span>
     </div>`;
 
@@ -282,7 +356,117 @@ class App {
     form.insertAdjacentHTML('afterend', html);
 
     this.#workoutEls.push(document.querySelector('.workout'));
-    // console.log(this.#workoutEls);
+  }
+  //NOTE
+  _openEditWorkout(e) {
+    const editBtn = e.target.closest('.btn--edit');
+    if (!editBtn) return;
+
+    const workoutEl = e.target.closest('.workout');
+
+    const editForms = Array.from(document.querySelectorAll('.edit-form'));
+
+    const [editForm] = editForms.filter(
+      el => el.dataset.id === workoutEl.dataset.id
+    );
+
+    workoutEl.style.display = 'none';
+    editForm.style.display = 'grid';
+    editForm.querySelector('.form__input--distance').focus();
+
+    editForm
+      .querySelector('.btn--cancel')
+      .addEventListener('click', function (e) {
+        e.preventDefault();
+        workoutEl.style.display = 'grid';
+        editForm.style.display = 'none';
+      });
+  }
+
+  _toggleEdit(e) {
+    const editForm = e.target.closest('.edit-form');
+
+    if (!editForm) return;
+
+    const inputType = editForm.querySelector('.form__input--type');
+    if (e.target === inputType) {
+      console.log(inputType);
+
+      const inputCadence = editForm.querySelector('.form__input--cadence');
+      const inputElevation = editForm.querySelector('.form__input--elevation');
+
+      inputElevation
+        .closest('.form__row')
+        .classList.toggle('form__row--hidden');
+      inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
+      inputCadence.placeholder = 'step/min';
+      inputElevation.placeholder = 'meters';
+    }
+  }
+
+  _submitEditForm(e) {
+    // e.preventDefault();
+
+    const editForm = e.target.closest('.edit-form');
+    console.log(editForm);
+
+    if (editForm) {
+      const inputType = editForm.querySelector('.Form__input--type');
+      const inputDistance = editForm.querySelector('.form__input--distance');
+      const inputDuration = editForm.querySelector('.form__input--duration');
+      const inputCadence = editForm.querySelector('.form__input--cadence');
+      const inputElevation = editForm.querySelector('.form__input--elevation');
+
+      const [workoutEl] = this.#workoutEls.filter(
+        el => el.dataset.id === editForm.dataset.id
+      );
+
+      const workouts = this.#workouts;
+      const workout = workouts.find(el => el.id === workoutEl.dataset.id);
+
+      const workoutIndex = workouts.indexOf(workout);
+
+      const validInputs = (...inputs) =>
+        inputs.every(inp => Number.isFinite(inp));
+      const allPositive = (...inputs) => inputs.every(inp => inp > 0);
+
+      const type = inputType.value;
+      const distance = +inputDistance.value;
+      const duration = +inputDuration.value;
+      const [lat, lng] = workout.coords;
+
+      let editWorkout;
+
+      if (type === 'running') {
+        const cadence = +inputCadence.value;
+        // check if data is valid
+        if (
+          !validInputs(distance, duration, cadence) ||
+          !allPositive(distance, duration, cadence)
+        )
+          return alert('unvalid inputs');
+
+        editWorkout = new Running([lat, lng], distance, duration, cadence);
+      }
+      if (type === 'cycling') {
+        const elevation = +inputElevation.value;
+
+        if (
+          !validInputs(distance, duration, elevation) ||
+          !allPositive(distance, duration)
+        )
+          return alert('unvalid inputs');
+
+        editWorkout = new Cycling([lat, lng], distance, duration, elevation);
+      }
+
+      workouts.splice(workoutIndex, 1, editWorkout);
+
+      localStorage.setItem('workouts', JSON.stringify(workouts));
+
+      editForm.style.display = 'none';
+      workoutEl.style.display = 'grid';
+    }
   }
 
   _deleteWorkout(e) {
