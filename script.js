@@ -357,7 +357,7 @@ class App {
 
     this.#workoutEls.push(document.querySelector('.workout'));
   }
-  //NOTE
+
   _openEditWorkout(e) {
     const editBtn = e.target.closest('.btn--edit');
     if (!editBtn) return;
@@ -390,8 +390,6 @@ class App {
 
     const inputType = editForm.querySelector('.form__input--type');
     if (e.target === inputType) {
-      console.log(inputType);
-
       const inputCadence = editForm.querySelector('.form__input--cadence');
       const inputElevation = editForm.querySelector('.form__input--elevation');
 
@@ -411,7 +409,8 @@ class App {
     console.log(editForm);
 
     if (editForm) {
-      const inputType = editForm.querySelector('.Form__input--type');
+      console.log('submited');
+      const inputType = editForm.querySelector('.form__input--type');
       const inputDistance = editForm.querySelector('.form__input--distance');
       const inputDuration = editForm.querySelector('.form__input--duration');
       const inputCadence = editForm.querySelector('.form__input--cadence');
